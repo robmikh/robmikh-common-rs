@@ -1,0 +1,63 @@
+[package]
+name = "robmikh-common"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+windows = "0.28.0"
+
+[features]
+universal = [ 
+    "windows/alloc", 
+    "windows/build", 
+    "windows/Foundation",
+    "windows/Foundation_Collections",
+    "windows/Foundation_Metadata",
+    "windows/Foundation_Numerics",
+    "windows/Win32_Foundation",
+    "windows/Win32_System_WinRT",
+]
+desktop = [
+    "universal",
+    "windows/Win32_Foundation",
+]
+composition = [
+    "universal",
+    "windows/UI",
+    "windows/UI_Composition",
+    "windows/UI_Composition_Core",
+    "windows/Win32_System_WinRT_Composition",
+]
+composition-desktop = [
+    "composition",
+    "desktop",
+    "windows/UI_Composition_Desktop",
+]
+dispatcher-queue-desktop = [
+    "desktop",
+    "windows/System",
+]
+d3d = [
+    "universal",
+    "windows/Graphics_DirectX",
+    "windows/Graphics_DirectX_Direct3D11",
+    "windows/Win32_Graphics_Direct3D",
+    "windows/Win32_Graphics_Direct3D11",
+    "windows/Win32_Graphics_Dxgi",
+    "windows/Win32_Graphics_Dxgi_Common",
+    "windows/Win32_System_WinRT_Direct3D11",
+]
+d3d-debug = [ "d3d" ]
+d2d = [
+    "universal",
+    "d3d",
+    "windows/Win32_Graphics_Direct2D",
+    "windows/Win32_Graphics_Direct2D_Common",
+    "windows/Win32_System_WinRT_Graphics_Direct2D",
+]
+d2d-debug = [ "d2d" ]
+stream = [
+    "universal",
+    "windows/Storage_Streams",
+    "windows/Win32_System_Com",
+]
