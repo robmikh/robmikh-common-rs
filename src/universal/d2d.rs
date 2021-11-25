@@ -10,10 +10,18 @@ use windows::Win32::Graphics::{
 };
 use Windows::core::implement;
 use Windows::Win32::Foundation::E_NOTIMPL;
-use Windows::Win32::Graphics::Direct2D::{ID2D1Factory, ID2D1Geometry};
+use Windows::Win32::Graphics::Direct2D::{
+    ID2D1Factory, ID2D1Geometry, D2D1_DEBUG_LEVEL_INFORMATION,
+};
 
 pub fn create_d2d_factory() -> Result<ID2D1Factory1> {
-    let options = D2D1_FACTORY_OPTIONS::default();
+    let options = {
+        let mut options = D2D1_FACTORY_OPTIONS::default();
+        if cfg!(feature = "d2d-debug") {
+            options.debugLevel = D2D1_DEBUG_LEVEL_INFORMATION;
+        }
+        options
+    };
     let mut result = None;
     unsafe {
         D2D1CreateFactory(
