@@ -1,6 +1,6 @@
 [package]
 name = "robmikh-common"
-version = "0.1.1"
+version = "0.1.3"
 edition = "2021"
 
 [dependencies]
@@ -20,6 +20,18 @@ universal = [
 desktop = [
     "universal",
     "windows/Win32_Foundation",
+]
+capture = [
+    "universal",
+    "windows/Graphics_DirectX",
+    "windows/Graphics_DirectX_Direct3D11",
+    "windows/Graphics_Capture",
+]
+capture-desktop = [
+    "capture",
+    "desktop",
+    "windows/Win32_System_WinRT_Graphics_Capture",
+    "windows/Win32_Graphics_Gdi",
 ]
 composition = [
     "universal",
@@ -56,6 +68,10 @@ d2d = [
     "windows/Win32_System_WinRT_Graphics_Direct2D",
 ]
 d2d-debug = [ "d2d" ]
+displays-desktop = [
+    "desktop",
+    "windows/Win32_Graphics_Gdi",
+]
 stream = [
     "universal",
     "windows/Storage_Streams",

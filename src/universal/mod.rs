@@ -1,3 +1,5 @@
+#[cfg(feature = "capture")]
+pub mod capture;
 #[cfg(feature = "composition")]
 pub mod composition;
 #[cfg(feature = "d2d")]
