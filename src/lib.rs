@@ -51,7 +51,7 @@ mod tests {
         };
 
         // Create and clear a surface
-        let comp_graphics = compositor.create_graphics_device(&d3d_device.0)?;
+        let comp_graphics = compositor.create_graphics_device_from_d3d_device(&d3d_device)?;
         let surface = comp_graphics.CreateDrawingSurface2(
             SizeInt32 {
                 Width: 1,
@@ -77,7 +77,7 @@ mod tests {
         let swap_chain =
             create_dxgi_swap_chain_default(&d3d_device, 800, 600, DXGI_FORMAT_B8G8R8A8_UNORM, 2)?;
         let swap_chain_surface =
-            compositor.create_composition_surface_for_swap_chain(&swap_chain.0)?;
+            compositor.create_composition_surface_for_swap_chain(&swap_chain)?;
         unsafe {
             let back_buffer: ID3D11Texture2D = swap_chain.GetBuffer(0)?;
             let render_target_view =

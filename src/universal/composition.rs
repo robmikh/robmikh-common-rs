@@ -2,6 +2,7 @@ use windows::{
     core::{IUnknown, Interface, Result},
     Win32::{
         Foundation::{POINT, RECT, SIZE},
+        Graphics::{Direct2D::ID2D1Device, Direct3D11::ID3D11Device, Dxgi::IDXGISwapChain1},
         System::WinRT::Composition::{ICompositionDrawingSurfaceInterop, ICompositorInterop},
     },
     UI::Composition::{
@@ -10,25 +11,46 @@ use windows::{
 };
 
 pub trait CompositorInterop {
-    fn create_graphics_device(&self, device: &IUnknown) -> Result<CompositionGraphicsDevice>;
+    fn create_graphics_device_from_d3d_device(
+        &self,
+        device: &ID3D11Device,
+    ) -> Result<CompositionGraphicsDevice>;
+    fn create_graphics_device_from_d2d_device(
+        &self,
+        device: &ID2D1Device,
+    ) -> Result<CompositionGraphicsDevice>;
     fn create_composition_surface_for_swap_chain(
         &self,
-        swap_chain: &IUnknown,
+        swap_chain: &IDXGISwapChain1,
     ) -> Result<ICompositionSurface>;
 }
 
 impl CompositorInterop for Compositor {
-    fn create_graphics_device(&self, device: &IUnknown) -> Result<CompositionGraphicsDevice> {
+    fn create_graphics_device_from_d3d_device(
+        &self,
+        device: &ID3D11Device,
+    ) -> Result<CompositionGraphicsDevice> {
         let interop: ICompositorInterop = self.cast()?;
-        unsafe { interop.CreateGraphicsDevice(device) }
+        let unknown: IUnknown = device.cast()?;
+        unsafe { interop.CreateGraphicsDevice(unknown) }
+    }
+
+    fn create_graphics_device_from_d2d_device(
+        &self,
+        device: &ID2D1Device,
+    ) -> Result<CompositionGraphicsDevice> {
+        let interop: ICompositorInterop = self.cast()?;
+        let unknown: IUnknown = device.cast()?;
+        unsafe { interop.CreateGraphicsDevice(unknown) }
     }
 
     fn create_composition_surface_for_swap_chain(
         &self,
-        swap_chain: &IUnknown,
+        swap_chain: &IDXGISwapChain1,
     ) -> Result<ICompositionSurface> {
         let interop: ICompositorInterop = self.cast()?;
-        unsafe { interop.CreateCompositionSurfaceForSwapChain(swap_chain) }
+        let unknown: IUnknown = swap_chain.cast()?;
+        unsafe { interop.CreateCompositionSurfaceForSwapChain(unknown) }
     }
 }
 

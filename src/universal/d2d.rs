@@ -1,5 +1,10 @@
-use windows as Windows;
+use windows::core::implement;
 use windows::core::{Interface, Result};
+use windows::Graphics::IGeometrySource2D_Impl;
+use windows::Win32::Foundation::E_NOTIMPL;
+use windows::Win32::Graphics::Direct2D::{
+    ID2D1Factory, ID2D1Geometry, D2D1_DEBUG_LEVEL_INFORMATION,
+};
 use windows::Win32::Graphics::{
     Direct2D::{
         D2D1CreateFactory, ID2D1Device, ID2D1Factory1, D2D1_FACTORY_OPTIONS,
@@ -8,11 +13,7 @@ use windows::Win32::Graphics::{
     Direct3D11::ID3D11Device,
     Dxgi::IDXGIDevice,
 };
-use Windows::core::implement;
-use Windows::Win32::Foundation::E_NOTIMPL;
-use Windows::Win32::Graphics::Direct2D::{
-    ID2D1Factory, ID2D1Geometry, D2D1_DEBUG_LEVEL_INFORMATION,
-};
+use windows::Win32::System::WinRT::Graphics::Direct2D::IGeometrySource2DInterop_Impl;
 
 pub fn create_d2d_factory() -> Result<ID2D1Factory1> {
     let options = {
@@ -40,8 +41,8 @@ pub fn create_d2d_device(factory: &ID2D1Factory1, device: &ID3D11Device) -> Resu
 }
 
 #[implement(
-    Windows::Graphics::IGeometrySource2D,
-    Windows::Win32::System::WinRT::Graphics::Direct2D::IGeometrySource2DInterop
+    windows::Graphics::IGeometrySource2D,
+    windows::Win32::System::WinRT::Graphics::Direct2D::IGeometrySource2DInterop
 )]
 pub struct GeometrySource {
     geometry: ID2D1Geometry,
@@ -52,12 +53,18 @@ impl GeometrySource {
     pub fn new(geometry: ID2D1Geometry) -> Self {
         Self { geometry }
     }
+}
 
-    pub fn GetGeometry(&self) -> Result<ID2D1Geometry> {
+#[allow(non_snake_case)]
+impl IGeometrySource2D_Impl for GeometrySource {}
+
+#[allow(non_snake_case)]
+impl IGeometrySource2DInterop_Impl for GeometrySource {
+    fn GetGeometry(&self) -> Result<ID2D1Geometry> {
         Ok(self.geometry.clone())
     }
 
-    pub fn TryGetGeometryUsingFactory(&self, _: &Option<ID2D1Factory>) -> Result<ID2D1Geometry> {
+    fn TryGetGeometryUsingFactory(&self, _: &Option<ID2D1Factory>) -> Result<ID2D1Geometry> {
         E_NOTIMPL.ok()?;
         unreachable!()
     }

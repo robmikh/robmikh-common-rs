@@ -1,4 +1,4 @@
-use windows::core::{PWSTR, PCWSTR};
+use windows::core::{PCWSTR, PWSTR};
 
 pub struct WideString(pub Vec<u16>);
 
