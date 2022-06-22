@@ -77,15 +77,10 @@ impl CompositionDrawingSurfaceInterop for CompositionDrawingSurface {
             std::ptr::null()
         };
         unsafe {
-            let mut update_object = None;
             let mut update_offset = POINT::default();
-            interop.BeginDraw(
-                update_rect,
-                &UpdateObject::IID,
-                &mut update_object as *mut _ as *mut *mut _,
-                &mut update_offset,
-            )?;
-            Ok((update_object.unwrap(), update_offset))
+            let update_object =
+                interop.BeginDraw::<UpdateObject>(update_rect, &mut update_offset)?;
+            Ok((update_object, update_offset))
         }
     }
 
