@@ -19,6 +19,6 @@ impl CompositorDesktopInterop for Compositor {
         is_top_most: bool,
     ) -> Result<DesktopWindowTarget> {
         let interop: ICompositorDesktopInterop = self.cast()?;
-        unsafe { interop.CreateDesktopWindowTarget(hwnd_target, is_top_most) }
+        unsafe { interop.CreateDesktopWindowTarget(*hwnd_target, is_top_most) }
     }
 }

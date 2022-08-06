@@ -23,16 +23,8 @@ pub fn create_d2d_factory() -> Result<ID2D1Factory1> {
         }
         options
     };
-    let mut result = None;
-    unsafe {
-        D2D1CreateFactory(
-            D2D1_FACTORY_TYPE_SINGLE_THREADED,
-            &ID2D1Factory1::IID,
-            &options,
-            &mut result as *mut _ as *mut *mut _,
-        )?;
-    }
-    Ok(result.unwrap())
+    let result = unsafe { D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &options)? };
+    Ok(result)
 }
 
 pub fn create_d2d_device(factory: &ID2D1Factory1, device: &ID3D11Device) -> Result<ID2D1Device> {

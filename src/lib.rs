@@ -68,7 +68,7 @@ mod tests {
                 unsafe { d3d_device.CreateRenderTargetView(update_object, std::ptr::null())? };
             unsafe {
                 d3d_context
-                    .ClearRenderTargetView(render_target_view, [1.0, 0.0, 0.0, 1.0].as_ptr());
+                    .ClearRenderTargetView(&render_target_view, [1.0, 0.0, 0.0, 1.0].as_ptr());
             }
         }
         compositor_controller.Commit()?;
@@ -82,12 +82,12 @@ mod tests {
             let back_buffer: ID3D11Texture2D = swap_chain.GetBuffer(0)?;
             let render_target_view =
                 d3d_device.CreateRenderTargetView(&back_buffer, std::ptr::null())?;
-            d3d_context.ClearRenderTargetView(render_target_view, [0.0, 1.0, 0.0, 1.0].as_ptr());
+            d3d_context.ClearRenderTargetView(&render_target_view, [0.0, 1.0, 0.0, 1.0].as_ptr());
         }
         let swap_chain_visual = compositor.CreateSpriteVisual()?;
         swap_chain_visual.SetSize(Vector2::new(800.0, 600.0))?;
-        let swap_chain_brush = compositor.CreateSurfaceBrushWithSurface(swap_chain_surface)?;
-        swap_chain_visual.SetBrush(swap_chain_brush)?;
+        let swap_chain_brush = compositor.CreateSurfaceBrushWithSurface(&swap_chain_surface)?;
+        swap_chain_visual.SetBrush(&swap_chain_brush)?;
         compositor_controller.Commit()?;
         Ok(())
     }

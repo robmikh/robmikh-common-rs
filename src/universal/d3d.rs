@@ -65,7 +65,7 @@ pub fn create_d3d_device() -> Result<ID3D11Device> {
 
 pub fn create_direct3d_device(d3d_device: &ID3D11Device) -> Result<IDirect3DDevice> {
     let dxgi_device: IDXGIDevice = d3d_device.cast()?;
-    let inspectable = unsafe { CreateDirect3D11DeviceFromDXGIDevice(Some(dxgi_device))? };
+    let inspectable = unsafe { CreateDirect3D11DeviceFromDXGIDevice(Some(&dxgi_device))? };
     inspectable.cast()
 }
 
@@ -133,6 +133,6 @@ pub fn copy_texture(
         desc.CPUAccessFlags = D3D11_CPU_ACCESS_FLAG(0);
     }
     let new_texture = unsafe { d3d_device.CreateTexture2D(&desc, std::ptr::null())? };
-    unsafe { d3d_context.CopyResource(Some(new_texture.cast()?), Some(texture.cast()?)) };
+    unsafe { d3d_context.CopyResource(Some(&new_texture.cast()?), Some(&texture.cast()?)) };
     Ok(new_texture)
 }

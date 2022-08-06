@@ -32,7 +32,7 @@ impl CompositorInterop for Compositor {
     ) -> Result<CompositionGraphicsDevice> {
         let interop: ICompositorInterop = self.cast()?;
         let unknown: IUnknown = device.cast()?;
-        unsafe { interop.CreateGraphicsDevice(unknown) }
+        unsafe { interop.CreateGraphicsDevice(&unknown) }
     }
 
     fn create_graphics_device_from_d2d_device(
@@ -41,7 +41,7 @@ impl CompositorInterop for Compositor {
     ) -> Result<CompositionGraphicsDevice> {
         let interop: ICompositorInterop = self.cast()?;
         let unknown: IUnknown = device.cast()?;
-        unsafe { interop.CreateGraphicsDevice(unknown) }
+        unsafe { interop.CreateGraphicsDevice(&unknown) }
     }
 
     fn create_composition_surface_for_swap_chain(
@@ -50,7 +50,7 @@ impl CompositorInterop for Compositor {
     ) -> Result<ICompositionSurface> {
         let interop: ICompositorInterop = self.cast()?;
         let unknown: IUnknown = swap_chain.cast()?;
-        unsafe { interop.CreateCompositionSurfaceForSwapChain(unknown) }
+        unsafe { interop.CreateCompositionSurfaceForSwapChain(&unknown) }
     }
 }
 
@@ -63,7 +63,7 @@ pub trait CompositionDrawingSurfaceInterop {
 impl CompositionDrawingSurfaceInterop for CompositionDrawingSurface {
     fn resize(&self, size: &SIZE) -> Result<()> {
         let interop: ICompositionDrawingSurfaceInterop = self.cast()?;
-        unsafe { interop.Resize(size) }
+        unsafe { interop.Resize(*size) }
     }
 
     fn begin_draw<UpdateObject: Interface>(

@@ -1,14 +1,13 @@
 [package]
 name = "robmikh-common"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2021"
 
 [dependencies]
-windows = "0.38.0"
+windows = "0.39.0"
 
 [features]
 universal = [ 
-    "windows/alloc", 
     "windows/implement", 
     "windows/Foundation",
     "windows/Foundation_Collections",

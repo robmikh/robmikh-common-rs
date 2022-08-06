@@ -38,7 +38,7 @@ impl CaptureFrameGenerator {
 
         let (sender, receiver) = channel();
         frame_pool.FrameArrived(
-            TypedEventHandler::<Direct3D11CaptureFramePool, IInspectable>::new({
+            &TypedEventHandler::<Direct3D11CaptureFramePool, IInspectable>::new({
                 let session = session.clone();
                 let sender = sender.clone();
                 move |frame_pool, _| {
