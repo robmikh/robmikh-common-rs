@@ -1,5 +1,5 @@
 use windows::{
-    core::{IUnknown, Interface, Result},
+    core::{ComInterface, IUnknown, Result},
     Win32::{
         Foundation::{POINT, RECT, SIZE},
         Graphics::{Direct2D::ID2D1Device, Direct3D11::ID3D11Device, Dxgi::IDXGISwapChain1},
@@ -56,7 +56,7 @@ impl CompositorInterop for Compositor {
 
 pub trait CompositionDrawingSurfaceInterop {
     fn resize(&self, size: &SIZE) -> Result<()>;
-    fn begin_draw<T: Interface>(&self, update_rect: Option<&RECT>) -> Result<(T, POINT)>;
+    fn begin_draw<T: ComInterface>(&self, update_rect: Option<&RECT>) -> Result<(T, POINT)>;
     fn end_draw(&self) -> Result<()>;
 }
 
@@ -66,15 +66,15 @@ impl CompositionDrawingSurfaceInterop for CompositionDrawingSurface {
         unsafe { interop.Resize(*size) }
     }
 
-    fn begin_draw<UpdateObject: Interface>(
+    fn begin_draw<UpdateObject: ComInterface>(
         &self,
         update_rect: Option<&RECT>,
     ) -> Result<(UpdateObject, POINT)> {
         let interop: ICompositionDrawingSurfaceInterop = self.cast()?;
         let update_rect = if let Some(update_rect) = update_rect {
-            update_rect as *const _
+            Some(update_rect as *const _)
         } else {
-            std::ptr::null()
+            None
         };
         unsafe {
             let mut update_offset = POINT::default();
@@ -90,13 +90,13 @@ impl CompositionDrawingSurfaceInterop for CompositionDrawingSurface {
     }
 }
 
-pub struct CompositionSurfaceDrawingSession<UpdateObject: Interface> {
+pub struct CompositionSurfaceDrawingSession<UpdateObject: ComInterface> {
     surface: CompositionDrawingSurface,
     update_object: UpdateObject,
     update_offset: POINT,
 }
 
-impl<UpdateObject: Interface> CompositionSurfaceDrawingSession<UpdateObject> {
+impl<UpdateObject: ComInterface> CompositionSurfaceDrawingSession<UpdateObject> {
     pub fn new(surface: CompositionDrawingSurface) -> Result<Self> {
         let (update_object, update_offset) = surface.begin_draw(None)?;
         Ok(Self {
@@ -126,7 +126,7 @@ impl<UpdateObject: Interface> CompositionSurfaceDrawingSession<UpdateObject> {
     }
 }
 
-impl<UpdateObject: Interface> Drop for CompositionSurfaceDrawingSession<UpdateObject> {
+impl<UpdateObject: ComInterface> Drop for CompositionSurfaceDrawingSession<UpdateObject> {
     fn drop(&mut self) {
         self.surface.end_draw().unwrap()
     }

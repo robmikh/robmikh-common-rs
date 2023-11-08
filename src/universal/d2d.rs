@@ -1,5 +1,5 @@
 use windows::core::implement;
-use windows::core::{Interface, Result};
+use windows::core::{ComInterface, Result};
 use windows::Graphics::IGeometrySource2D_Impl;
 use windows::Win32::Foundation::E_NOTIMPL;
 use windows::Win32::Graphics::Direct2D::{
@@ -23,7 +23,7 @@ pub fn create_d2d_factory() -> Result<ID2D1Factory1> {
         }
         options
     };
-    let result = unsafe { D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &options)? };
+    let result = unsafe { D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, Some(&options))? };
     Ok(result)
 }
 
@@ -56,7 +56,7 @@ impl IGeometrySource2DInterop_Impl for GeometrySource {
         Ok(self.geometry.clone())
     }
 
-    fn TryGetGeometryUsingFactory(&self, _: &Option<ID2D1Factory>) -> Result<ID2D1Geometry> {
+    fn TryGetGeometryUsingFactory(&self, _: Option<&ID2D1Factory>) -> Result<ID2D1Geometry> {
         E_NOTIMPL.ok()?;
         unreachable!()
     }

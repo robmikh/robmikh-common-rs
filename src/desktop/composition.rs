@@ -1,5 +1,5 @@
 use windows::{
-    core::{Interface, Result},
+    core::{ComInterface, Result},
     Win32::{Foundation::HWND, System::WinRT::Composition::ICompositorDesktopInterop},
     UI::Composition::{Compositor, Desktop::DesktopWindowTarget},
 };

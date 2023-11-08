@@ -44,11 +44,7 @@ mod tests {
         let compositor_controller = CompositorController::new()?;
         let compositor = compositor_controller.Compositor()?;
         let d3d_device = create_d3d_device()?;
-        let d3d_context = {
-            let mut d3d_context = None;
-            unsafe { d3d_device.GetImmediateContext(&mut d3d_context) };
-            d3d_context.unwrap()
-        };
+        let d3d_context = unsafe { d3d_device.GetImmediateContext()? };
 
         // Create and clear a surface
         let comp_graphics = compositor.create_graphics_device_from_d3d_device(&d3d_device)?;
@@ -64,11 +60,13 @@ mod tests {
         {
             let session = CompositionSurfaceDrawingSession::<ID3D11Texture2D>::new(surface)?;
             let update_object = session.update_object();
-            let render_target_view =
-                unsafe { d3d_device.CreateRenderTargetView(update_object, std::ptr::null())? };
+            let render_target_view = unsafe {
+                let mut rtv = None;
+                d3d_device.CreateRenderTargetView(update_object, None, Some(&mut rtv))?;
+                rtv.unwrap()
+            };
             unsafe {
-                d3d_context
-                    .ClearRenderTargetView(&render_target_view, [1.0, 0.0, 0.0, 1.0].as_ptr());
+                d3d_context.ClearRenderTargetView(&render_target_view, &[1.0, 0.0, 0.0, 1.0]);
             }
         }
         compositor_controller.Commit()?;
@@ -80,9 +78,12 @@ mod tests {
             compositor.create_composition_surface_for_swap_chain(&swap_chain)?;
         unsafe {
             let back_buffer: ID3D11Texture2D = swap_chain.GetBuffer(0)?;
-            let render_target_view =
-                d3d_device.CreateRenderTargetView(&back_buffer, std::ptr::null())?;
-            d3d_context.ClearRenderTargetView(&render_target_view, [0.0, 1.0, 0.0, 1.0].as_ptr());
+            let render_target_view = {
+                let mut rtv = None;
+                d3d_device.CreateRenderTargetView(&back_buffer, None, Some(&mut rtv))?;
+                rtv.unwrap()
+            };
+            d3d_context.ClearRenderTargetView(&render_target_view, &[0.0, 1.0, 0.0, 1.0]);
         }
         let swap_chain_visual = compositor.CreateSpriteVisual()?;
         swap_chain_visual.SetSize(Vector2::new(800.0, 600.0))?;

@@ -1,9 +1,8 @@
-use windows::core::{Abi, Interface, Result};
+use windows::core::{ComInterface, Interface, Result};
 use windows::Graphics::DirectX::Direct3D11::IDirect3DDevice;
 use windows::Win32::Graphics::Direct3D11::{
-    ID3D11DeviceContext, ID3D11Texture2D, D3D11_BIND_FLAG, D3D11_BIND_SHADER_RESOURCE,
-    D3D11_CPU_ACCESS_FLAG, D3D11_CPU_ACCESS_READ, D3D11_CREATE_DEVICE_DEBUG,
-    D3D11_RESOURCE_MISC_FLAG, D3D11_TEXTURE2D_DESC, D3D11_USAGE_DEFAULT, D3D11_USAGE_STAGING,
+    ID3D11DeviceContext, ID3D11Texture2D, D3D11_BIND_SHADER_RESOURCE, D3D11_CPU_ACCESS_READ,
+    D3D11_CREATE_DEVICE_DEBUG, D3D11_TEXTURE2D_DESC, D3D11_USAGE_DEFAULT, D3D11_USAGE_STAGING,
 };
 use windows::Win32::Graphics::Dxgi::Common::{
     DXGI_ALPHA_MODE_PREMULTIPLIED, DXGI_FORMAT, DXGI_SAMPLE_DESC,
@@ -35,11 +34,11 @@ fn create_d3d_device_with_type(
             driver_type,
             None,
             flags,
-            &[],
+            None,
             D3D11_SDK_VERSION as u32,
-            device,
-            std::ptr::null_mut(),
-            std::ptr::null_mut(),
+            Some(device),
+            None,
+            None,
         )
     }
 }
@@ -69,7 +68,9 @@ pub fn create_direct3d_device(d3d_device: &ID3D11Device) -> Result<IDirect3DDevi
     inspectable.cast()
 }
 
-pub fn get_d3d_interface_from_object<S: Interface, R: Interface + Abi>(object: &S) -> Result<R> {
+pub fn get_d3d_interface_from_object<S: Interface + ComInterface, R: Interface + ComInterface>(
+    object: &S,
+) -> Result<R> {
     let access: IDirect3DDxgiInterfaceAccess = object.cast()?;
     let object = unsafe { access.GetInterface::<R>()? };
     Ok(object)
@@ -122,17 +123,21 @@ pub fn copy_texture(
 ) -> Result<ID3D11Texture2D> {
     let mut desc = D3D11_TEXTURE2D_DESC::default();
     unsafe { texture.GetDesc(&mut desc) };
-    desc.MiscFlags = D3D11_RESOURCE_MISC_FLAG(0);
+    desc.MiscFlags = 0;
     if staging_texture {
         desc.Usage = D3D11_USAGE_STAGING;
-        desc.BindFlags = D3D11_BIND_FLAG(0);
-        desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+        desc.BindFlags = 0;
+        desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ.0 as u32;
     } else {
         desc.Usage = D3D11_USAGE_DEFAULT;
-        desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-        desc.CPUAccessFlags = D3D11_CPU_ACCESS_FLAG(0);
+        desc.BindFlags = D3D11_BIND_SHADER_RESOURCE.0 as u32;
+        desc.CPUAccessFlags = 0;
     }
-    let new_texture = unsafe { d3d_device.CreateTexture2D(&desc, std::ptr::null())? };
+    let new_texture = unsafe {
+        let mut new_texture = None;
+        d3d_device.CreateTexture2D(&desc, None, Some(&mut new_texture))?;
+        new_texture.unwrap()
+    };
     unsafe { d3d_context.CopyResource(Some(&new_texture.cast()?), Some(&texture.cast()?)) };
     Ok(new_texture)
 }
